@@ -9,4 +9,14 @@ public class GameConst
 	/// 重力常数
 	/// </summary>
 	public const float Gravity = -9.8f;
+
+    /// <summary>
+    /// 地面一致高度
+    /// </summary>
+    public const float FloorHeight = 0;
+
+    /// <summary>
+    /// 在地面时的刚体linearDrag
+    /// </summary>
+    public const float FloorLinearDrag = 5f;
 }

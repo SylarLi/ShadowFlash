@@ -9,14 +9,14 @@ public class SceneModel : EventDispatcher, IModel
 
 	private SceneState _state;
 
-	private Dictionary<long, ISceneRole> _roles;
+	private Dictionary<long, ISceneRole> _sceneRoles;
 
 	public SceneModel()
 	{
 		_mapId = 0;
 		_sceneId = 0;
 		_state = SceneState.Loaded;
-		_roles = new Dictionary<long, ISceneRole>();
+        _sceneRoles = new Dictionary<long, ISceneRole>();
 	}
 
 	public int mapId
@@ -74,69 +74,69 @@ public class SceneModel : EventDispatcher, IModel
 		}
 	}
 
-	public T FindRole<T>(long id) where T : class, ISceneRole
+	public T FindSceneRole<T>(long id) where T : class, ISceneRole
 	{
 		T role = null;
-		if (_roles.ContainsKey(id))
+        if (_sceneRoles.ContainsKey(id))
 		{
-			role = _roles[id] as T;
+            role = _sceneRoles[id] as T;
 		}
 		return role;
 	}
 
-	public bool AddRole(ISceneRole role)
+	public bool AddSceneRole(ISceneRole sceneRole)
 	{
 		bool result = false;
-		if (!_roles.ContainsKey(role.id))
+        if (!_sceneRoles.ContainsKey(sceneRole.id))
 		{
-			_roles.Add(role.id, role);
-			ListenRole(role);
-			DispatchEvent(new SceneEvent(SceneEvent.AddRole, role));
+            _sceneRoles.Add(sceneRole.id, sceneRole);
+            ListenSceneRole(sceneRole);
+            DispatchEvent(new SceneEvent(SceneEvent.AddRole, sceneRole));
 			result = true;
 		}
 		return result;
 	}
 
-	public bool RemoveRole(long id)
+	public bool RemoveSceneRole(long id)
 	{
 		bool result = false;
-		ISceneRole role = FindRole<ISceneRole>(id);
-		if (role != null)
+		ISceneRole sceneRole = FindSceneRole<ISceneRole>(id);
+        if (sceneRole != null)
 		{
-			_roles.Remove(role.id);
-			UnListenRole(role);
-			DispatchEvent(new SceneEvent(SceneEvent.RemoveRole, role));
+            _sceneRoles.Remove(sceneRole.id);
+            UnListenSceneRole(sceneRole);
+            DispatchEvent(new SceneEvent(SceneEvent.RemoveRole, sceneRole));
 			result = true;
 		}
 		return result;
 	}
 
-	public void RemoveRoleByType(SceneRoleType type)
+	public void RemoveRoleByType(RoleType type)
 	{
-		Dictionary<long, ISceneRole>.KeyCollection keys = _roles.Keys;
+        Dictionary<long, ISceneRole>.KeyCollection keys = _sceneRoles.Keys;
 		foreach (long id in keys)
 		{
-			if (_roles[id].type == type)
+            if (_sceneRoles[id].type == type)
 			{
-				RemoveRole(id);
+				RemoveSceneRole(id);
 			}
 		}
 	}
 
 	public void RemoveRoleAll()
 	{
-		Dictionary<long, ISceneRole>.KeyCollection keys = _roles.Keys;
+        Dictionary<long, ISceneRole>.KeyCollection keys = _sceneRoles.Keys;
 		foreach (long id in keys)
 		{
-			RemoveRole(id);
+			RemoveSceneRole(id);
 		}
 	}
 
-	private void ListenRole(ISceneRole role)
+	private void ListenSceneRole(ISceneRole role)
 	{
 		switch (role.type)
 		{
-			case SceneRoleType.Player:
+			case RoleType.Player:
 			{
 				role.AddEventListener(PlayerSceneRoleEvent.SelfChange, PlayerSelfChangeHandler);
 				break;
@@ -144,11 +144,11 @@ public class SceneModel : EventDispatcher, IModel
 		}
 	}
 
-	private void UnListenRole(ISceneRole role)
+	private void UnListenSceneRole(ISceneRole role)
 	{
 		switch (role.type)
 		{
-			case SceneRoleType.Player:
+            case RoleType.Player:
 			{
 				role.RemoveEventListener(PlayerSceneRoleEvent.SelfChange, PlayerSelfChangeHandler);
 				break;
@@ -161,9 +161,9 @@ public class SceneModel : EventDispatcher, IModel
 		PlayerSceneRole targetPlayer = obj.target as PlayerSceneRole;
 		if (targetPlayer.self)
 		{
-			foreach (ISceneRole each in _roles.Values)
+			foreach (ISceneRole each in _sceneRoles.Values)
 			{
-				if (each.type == SceneRoleType.Player)
+				if (each.type == RoleType.Player)
 				{
 					PlayerSceneRole eachPlayer = each as PlayerSceneRole;
 					if (eachPlayer.self && eachPlayer != targetPlayer)

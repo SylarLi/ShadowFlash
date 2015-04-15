@@ -8,11 +8,11 @@ public class SceneController : IController
 
 	private LoadProxy loadProxy;
 
-	private Dictionary<ISceneRole, ISceneRoleView> roles;
+	private Dictionary<ISceneRole, ISceneRoleView> sceneRoles;
 
 	public SceneController()
 	{
-		roles = new Dictionary<ISceneRole, ISceneRoleView>();
+		sceneRoles = new Dictionary<ISceneRole, ISceneRoleView>();
 		loadProxy = GameObject.Find("LoadProxy").GetComponent<LoadProxy>();
 	}
 
@@ -37,37 +37,51 @@ public class SceneController : IController
         { 
 			sceneModel.state = SceneState.Loaded; 
 			Debug.Log("Scene load complete: " + Application.loadedLevelName);
+            Test();
 		});
 	}
 
+    private void Test()
+    {
+        Role role = new Role();
+        role.SetLong(Role.id, 1);
+        role.SetInt(Role.entityId, 100001);
+        role.SetEnum<RoleType>(Role.type, RoleType.Player);
+        role.SetString(Role.name, "Player");
+        PlayerSceneRole sceneRole = new PlayerSceneRole(role);
+        sceneRole.active = true;
+        sceneRole.self = true;
+        sceneModel.AddSceneRole(sceneRole);
+    }
+
 	private void AddRoleHandler(IEvent obj)
 	{
-		AddRole(obj.data as ISceneRole);
+		AddSceneRole(obj.data as ISceneRole);
 	}
 
 	private void RemoveRoleHandler(IEvent obj)
 	{
-		RemoveRole(obj.data as ISceneRole);
+		RemoveSceneRole(obj.data as ISceneRole);
 	}
 
-	private void AddRole(ISceneRole role)
+	private void AddSceneRole(ISceneRole role)
 	{
-		if (!roles.ContainsKey(role))
+		if (!sceneRoles.ContainsKey(role))
 		{
 			ISceneRoleView view = null;
 			switch (role.type)
 			{
-				case SceneRoleType.Player:
+				case RoleType.Player:
 				{
 					view = new PlayerSceneRoleView(loadProxy, role as PlayerSceneRole);
 					break;
 				}
-				case SceneRoleType.Monster:
+                case RoleType.Monster:
 				{
 					view = new MonsterSceneRoleView(loadProxy, role as MonsterSceneRole);
 					break;
 				}
-				case SceneRoleType.Npc:
+                case RoleType.Npc:
 				{
 					view = new NpcSceneRoleView(loadProxy, role as NpcSceneRole);
 					break;
@@ -77,16 +91,16 @@ public class SceneController : IController
 					throw new System.NotSupportedException(role.type + " is not supported");
 				}
 			}
-			roles.Add(role, view);
+			sceneRoles.Add(role, view);
 		}
 	}
 
-	private void RemoveRole(ISceneRole role)
+	private void RemoveSceneRole(ISceneRole role)
 	{
-		if (roles.ContainsKey(role))
+		if (sceneRoles.ContainsKey(role))
 		{
-			roles[role].Dispose();
-			roles.Remove(role);
+			sceneRoles[role].Dispose();
+			sceneRoles.Remove(role);
 		}
 	}
 

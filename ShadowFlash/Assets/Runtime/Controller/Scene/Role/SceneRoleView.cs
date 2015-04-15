@@ -5,7 +5,7 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 {
 	protected LoadProxy loadProxy;
 
-	protected T1 role;
+	protected T1 sceneRole;
 
 	protected int entityId;
 
@@ -13,10 +13,10 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 
 	protected T2 behaviour;
 
-	public SceneRoleView(LoadProxy loadProxy, T1 role)
+	public SceneRoleView(LoadProxy loadProxy, T1 sceneRole)
 	{
 		this.loadProxy = loadProxy;
-		this.role = role;
+        this.sceneRole = sceneRole;
 		this.entityId = 0;
 		TriggerEntityChange();
 		Listen();
@@ -24,16 +24,20 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 
 	protected virtual void Listen()
 	{
-		role.AddEventListener(SceneRoleEvent.EntityIdChange, EntityIdChangeHandler);
-		role.AddEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
-		role.AddEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
+		sceneRole.role.AddEventListener(RoleEvent.EntityIdChange, EntityIdChangeHandler);
+        sceneRole.role.AddEventListener(RoleEvent.NameChange, NameChangeHandler);
+		sceneRole.AddEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
+		sceneRole.AddEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
 	}
 	
 	protected virtual void Unlisten()
 	{
-		role.RemoveEventListener(SceneRoleEvent.EntityIdChange, EntityIdChangeHandler);
-		role.RemoveEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
-		role.RemoveEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
+        sceneRole.role.RemoveEventListener(RoleEvent.EntityIdChange, EntityIdChangeHandler);
+        sceneRole.role.RemoveEventListener(RoleEvent.NameChange, NameChangeHandler);
+		sceneRole.RemoveEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
+		sceneRole.RemoveEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
 	}
 	
 	protected virtual void TriggerEntityChange()
@@ -44,13 +48,15 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 	protected virtual void TriggerPropertyChange()
 	{
 		CullingChangeHandler(null);
+        ActiveChangeHandler(null);
 		LayerChangeHandler(null);
+        NameChangeHandler(null);
 	}
 
 	protected virtual void AttachComponent()
 	{
 		behaviour = entity.AddComponent<T2>();
-		behaviour.Bind(role);
+		behaviour.Bind(sceneRole);
 	}
 
 	protected virtual void DettachComponent()
@@ -61,8 +67,8 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 	
 	private void EntityIdChangeHandler(IEvent obj)
 	{
-		int loadEntityId = role.entityId;
-		if (!role.culling && entityId != loadEntityId)
+		int loadEntityId = sceneRole.role.GetInt(Role.entityId);
+		if (!sceneRole.culling && entityId != loadEntityId)
 		{
 			loadProxy.LoadEntity(loadEntityId, (GameObject go) =>
             {
@@ -84,7 +90,7 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 
 	private void CullingChangeHandler(IEvent obj)
 	{
-		if (role.culling)
+		if (sceneRole.culling)
 		{
 			if (entity != null)
 			{
@@ -93,24 +99,40 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 		}
 		else
 		{
-			if (entity != null)
+			if (entity == null)
 			{
-				TriggerPropertyChange();
+                TriggerEntityChange();
 			}
-			else
-			{
-				TriggerEntityChange();
-			}
+            else
+            {
+                LayerChangeHandler(null);
+            }
 		}
 	}
 
+    private void ActiveChangeHandler(IEvent obj)
+    {
+        if (entity != null)
+        {
+            entity.SetActive(sceneRole.active);
+        }
+    }
+
 	private void LayerChangeHandler(IEvent obj)
 	{
-		if (!role.culling && entity != null)
+		if (!sceneRole.culling && entity != null)
 		{
-			GameUtil.SetLayer(entity, role.layer);
+			GameUtil.SetLayer(entity, sceneRole.layer);
 		}
 	}
+
+    private void NameChangeHandler(IEvent obj)
+    {
+        if (entity != null)
+        {
+            entity.name = sceneRole.role.GetString(Role.name);
+        }
+    }
 
 	private void RecycleEntity()
 	{
@@ -128,7 +150,7 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 		RecycleEntity();
 		entityId = -1;
 		entity = null;
-		role = null;
+		sceneRole = null;
 		loadProxy = null;
 	}
 }

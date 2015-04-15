@@ -2,8 +2,6 @@ using Core;
 
 public class SceneRoleEvent : Event
 {
-	public const string EntityIdChange = "EntityIdChange";
-
 	public const string CullingChange = "CullingChange";
 
 	public const string ActiveChange = "ActiveChange";

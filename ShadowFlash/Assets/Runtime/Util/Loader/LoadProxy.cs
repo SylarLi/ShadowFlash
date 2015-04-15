@@ -5,9 +5,9 @@ using System.Collections;
 
 public class LoadProxy : MonoBehaviour
 {
-	private const string CharacterPath = "Assets/Prefab/Character/";
+    private const string CharacterPath = "Character/";
 
-	private const string EffectPath = "Assets/Prefab/Effect/";
+    private const string EffectPath = "Effect/";
 
 	public void LoadEntity(int entityId, Action<GameObject> callBack = null)
 	{
@@ -17,11 +17,11 @@ public class LoadProxy : MonoBehaviour
 		}
 		else if (entityId < 200000)
 		{
-			StartCoroutine(LoadGameObjectCoroutine(CharacterPath + entityId, callBack));
+            StartCoroutine(LoadGameObjectCoroutine(CharacterPath + entityId, callBack));
 		}
 		else if (entityId < 300000)
 		{
-			StartCoroutine(LoadGameObjectCoroutine(EffectPath + entityId, callBack));
+            StartCoroutine(LoadGameObjectCoroutine(EffectPath + entityId, callBack));
 		}
 		else
 		{
@@ -46,7 +46,7 @@ public class LoadProxy : MonoBehaviour
 
 	private IEnumerator LoadGameObjectCoroutine(string path, Action<GameObject> callBack = null)
 	{
-		GameObject go = Resources.Load<GameObject>(path);
+		GameObject go = GameObject.Instantiate(Resources.Load<GameObject>(path)) as GameObject;
 		go.SetActive(false);
 		GameObject.DontDestroyOnLoad(go);
 		yield return new WaitForEndOfFrame();

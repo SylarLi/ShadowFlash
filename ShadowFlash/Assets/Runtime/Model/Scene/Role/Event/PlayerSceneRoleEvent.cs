@@ -4,5 +4,6 @@ public class PlayerSceneRoleEvent : SceneRoleEvent
 
 	public PlayerSceneRoleEvent(string type, object data = null) : base(type, data)
 	{
+
 	}
 }

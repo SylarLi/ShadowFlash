@@ -15,7 +15,7 @@ namespace Action
         {
             if (!_raws.ContainsKey(raw) || _raws[raw] == null)
             {
-                _raws[raw] = ActionUtil.Deserialize<IActionInfo>(raw);
+                _raws[raw] = ProtoBufUtil.Deserialize<IActionInfo>(raw);
             }
             return _raws[raw].Clone();
         }

@@ -3,9 +3,7 @@ using UnityEngine;
 
 public class SceneRole : EventDispatcher, ISceneRole
 {
-	private long _id;
-
-	private int _entityId;
+    private IRole _role;
 
 	private bool _active;
 
@@ -25,10 +23,9 @@ public class SceneRole : EventDispatcher, ISceneRole
 	
 	private float _animatorSpeed;
 
-	public SceneRole(long id)
+	public SceneRole(IRole role)
 	{
-		_id = id;
-		_entityId = 0;
+        _role = role;
 		_active = false;
 		_culling = false;
 		_render = true;
@@ -40,37 +37,29 @@ public class SceneRole : EventDispatcher, ISceneRole
 
 	#region ISceneRole implementation
 
-	public long id
-	{
-		get
-		{
-			return _id;
-		}
-	}
+	public IRole role
+    {
+        get
+        {
+            return _role;
+        }
+    }
 
-	public virtual SceneRoleType type
-	{
-		get
-		{
-			return SceneRoleType.None;
-		}
-	}
+    public long id
+    {
+        get
+        {
+            return _role.GetLong(Role.id);
+        }
+    }
 
-	public int entityId
-	{
-		get
-		{
-			return _entityId;
-		}
-		set
-		{
-			if (_entityId != value)
-			{
-				_entityId = value;
-				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.EntityIdChange));
-			}
-		}
-	}
+    public RoleType type
+    {
+        get
+        {
+            return _role.GetEnum<RoleType>(Role.type);
+        }
+    }
 
 	public bool active
 	{

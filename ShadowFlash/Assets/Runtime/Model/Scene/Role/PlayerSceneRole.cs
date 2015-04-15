@@ -2,17 +2,9 @@ public class PlayerSceneRole : SceneRole
 {
 	private bool _self;
 
-	public PlayerSceneRole(long id) : base(id)
+    public PlayerSceneRole(IRole role) : base(role)
 	{
 
-	}
-
-	public override SceneRoleType type
-	{
-		get
-		{
-			return SceneRoleType.Player;
-		}
 	}
 
 	public bool self

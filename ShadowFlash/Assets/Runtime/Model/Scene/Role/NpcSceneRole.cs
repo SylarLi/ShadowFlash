@@ -1,14 +1,7 @@
 public class NpcSceneRole : SceneRole
 {
-	public NpcSceneRole(long id) : base(id)
+    public NpcSceneRole(IRole role) : base(role)
 	{
-	}
 
-	public override SceneRoleType type
-	{
-		get
-		{
-			return SceneRoleType.Npc;
-		}
 	}
 }

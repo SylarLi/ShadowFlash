@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 {
+    public float floorLinearDrag = GameConst.FloorLinearDrag;
+
 	protected ISceneRole role;
 
 	protected MeshRenderer[] renderers;
@@ -10,6 +12,14 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 	protected Animator animator;
 	
 	protected Rigidbody2D rigidbody2D;
+
+    protected GameObject ghostv;
+
+    protected Rigidbody2D ghostvRigidbody2D;
+
+    protected GameObject ghosth;
+
+    protected Rigidbody2D ghosthRigidbody2D;
 
 	public void Bind(T role)
 	{
@@ -20,7 +30,6 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 	protected virtual void Listen()
 	{
 		role.AddEventListener(SceneRoleEvent.RenderChange, RenderChangeHandler);
-		role.AddEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
 		role.AddEventListener(SceneRoleEvent.PositionChange, PositionChangeHandler);
 		role.AddEventListener(SceneRoleEvent.RotationChange, RotationChangeHandler);
 		role.AddEventListener(SceneRoleEvent.LocalScaleChange, LocalScaleChangeHandler);
@@ -31,17 +40,11 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 	protected virtual void Unlisten()
 	{
 		role.RemoveEventListener(SceneRoleEvent.RenderChange, RenderChangeHandler);
-		role.RemoveEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
 		role.RemoveEventListener(SceneRoleEvent.PositionChange, PositionChangeHandler);
 		role.RemoveEventListener(SceneRoleEvent.RotationChange, RotationChangeHandler);
 		role.RemoveEventListener(SceneRoleEvent.LocalScaleChange, LocalScaleChangeHandler);
 		role.RemoveEventListener(SceneRoleEvent.AnimatorEnabledChange, AnimatorEnabledChangeHandler);
 		role.RemoveEventListener(SceneRoleEvent.AnimatorSpeedChange, AnimatorSpeedChangeHandler);
-	}
-
-	private void ActiveChangeHandler(IEvent obj)
-	{
-		gameObject.SetActive(role.active);
 	}
 	
 	private void RenderChangeHandler(IEvent obj)
@@ -86,32 +89,90 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 		}
 	}
 
-	private void Update()
+    protected void AddVelocity(Vector3 velocity)
+    {
+        // 水平速度
+        ghosthRigidbody2D.velocity += new Vector2(velocity.x, velocity.y);
+        // 垂直速度
+        ghostvRigidbody2D.velocity += new Vector2(0, GameUtil.Position3DZ22DY(velocity.z));
+    }
+
+    protected void AddImpulse(Vector3 impulse)
+    {
+        // 水平力
+        ghosthRigidbody2D.AddForce(new Vector2(impulse.x, impulse.y), ForceMode2D.Impulse);
+        // 垂直力
+        ghostvRigidbody2D.AddForce(new Vector2(0, GameUtil.Position3DZ22DY(impulse.z)), ForceMode2D.Impulse);
+    }
+
+    protected virtual void Awake()
+    {
+        renderers = GetComponentsInChildren<MeshRenderer>();
+        animator = GetComponent<Animator>();
+        rigidbody2D = GetComponent<Rigidbody2D>();
+
+        // 控制水平方向移动和受力
+        ghostv = new GameObject("ghostv_" + gameObject.name);
+        GameUtil.SetLayer(ghostv, GameLayer.Culling);
+        ghostvRigidbody2D = ghostv.AddComponent<Rigidbody2D>();
+        GameUtil.CopyRigidbody2DProperty(rigidbody2D, ghostvRigidbody2D);
+
+        // 控制垂直方向移动和受力
+        ghosth = new GameObject("ghosth_" + gameObject.name);
+        GameUtil.SetLayer(ghosth, GameLayer.Culling);
+        ghosthRigidbody2D = ghosth.AddComponent<Rigidbody2D>();
+        GameUtil.CopyRigidbody2DProperty(rigidbody2D, ghosthRigidbody2D);
+    }
+
+    protected virtual void OnEnable()
+    {
+        RenderChangeHandler(null);
+        PositionChangeHandler(null);
+        RotationChangeHandler(null);
+        LocalScaleChangeHandler(null);
+        AnimatorEnabledChangeHandler(null);
+        AnimatorSpeedChangeHandler(null);
+    }
+
+    protected virtual void Update()
 	{
-		// Todo: 2D坐标3D化
-		// role.SyncPosition(transform.position);
+        Vector3 position = ghosth.transform.position;
+        position.z = ghostv.transform.position.y;
+        transform.position = GameUtil.Position3DZ22DY(position);
+
+        role.SyncPosition(position);
 		role.SyncRotation(transform.rotation.eulerAngles);
 		role.SyncLocalScale(transform.localScale);
 	}
-	
-	private void FixedUpdate()
-	{
 
+    protected virtual void FixedUpdate()
+	{
+        Vector3 vp = ghostv.transform.position;
+        if (vp.y >= GameConst.FloorHeight && vp.y + ghostvRigidbody2D.velocity.y * Time.deltaTime > GameConst.FloorHeight)
+        {
+            // 如果在浮空，施加重力
+            ghostvRigidbody2D.AddForce(new Vector2(0, ghostvRigidbody2D.mass * GameConst.Gravity), ForceMode2D.Force);
+            // 设置水平阻力位0
+            ghosthRigidbody2D.drag = 0;
+        }
+        else
+        {
+            // 如果落地
+            vp.y = GameConst.FloorHeight;
+            ghostv.transform.position = vp;
+            // 垂直速度归0
+            ghostvRigidbody2D.velocity = Vector2.zero;
+            // 回复水平阻力
+            ghosthRigidbody2D.drag = floorLinearDrag;
+        }
 	}
 
-	private void Awake()
-	{
-		renderers = GetComponentsInChildren<MeshRenderer>();
-		animator = GetComponent<Animator>();
-		rigidbody2D = GetComponent<Rigidbody2D>();
-	}
-
-	private void OnDestroy()
-	{
-		Unlisten();
-		renderers = null;
-		animator = null;
-		rigidbody2D = null;
-		role = null;
-	}
+    protected virtual void OnDestroy()
+    {
+        Unlisten();
+        renderers = null;
+        animator = null;
+        rigidbody2D = null;
+        role = null;
+    }
 }

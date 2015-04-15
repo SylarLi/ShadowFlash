@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRoleBehaviour>
 {
-	public PlayerSceneRoleView(LoadProxy loadProxy, PlayerSceneRole role) : base(loadProxy, role)
+    public PlayerSceneRoleView(LoadProxy loadProxy, PlayerSceneRole sceneRole) : base(loadProxy, sceneRole)
 	{
 
 	}
@@ -11,13 +11,13 @@ public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRol
 	protected override void Listen()
 	{
 		base.Listen();
-		role.AddEventListener(PlayerSceneRoleEvent.SelfChange, SelfChangeHandler);
+		sceneRole.AddEventListener(PlayerSceneRoleEvent.SelfChange, SelfChangeHandler);
 	}
 
 	protected override void Unlisten()
 	{
 		base.Unlisten();
-		role.AddEventListener(PlayerSceneRoleEvent.SelfChange, SelfChangeHandler);
+		sceneRole.AddEventListener(PlayerSceneRoleEvent.SelfChange, SelfChangeHandler);
 	}
 
 	protected override void TriggerPropertyChange()
@@ -30,7 +30,7 @@ public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRol
 	{
 		if (entity != null)
 		{
-			if (role.self)
+			if (sceneRole.self)
 			{
 				// Append Controll Proxy
 			}
