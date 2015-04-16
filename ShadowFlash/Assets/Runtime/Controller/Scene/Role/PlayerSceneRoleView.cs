@@ -30,14 +30,21 @@ public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRol
 	{
 		if (entity != null)
 		{
-			if (sceneRole.self)
-			{
-				// Append Controll Proxy
-			}
-			else
-			{
-				// Remove Controll Proxy
-			}
+            KeyBoardListener listener = entity.GetComponent<KeyBoardListener>();
+            if (sceneRole.self)
+            {
+                if (listener == null)
+                {
+                    listener = entity.AddComponent<KeyBoardListener>();
+                }
+            }
+            else
+            {
+                if (listener != null)
+                {
+                    GameUtil.Destroy(listener);
+                }
+            }
 		}
 	}
 }

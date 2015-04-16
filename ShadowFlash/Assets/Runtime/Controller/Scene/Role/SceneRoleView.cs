@@ -29,6 +29,9 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 		sceneRole.AddEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
         sceneRole.AddEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
 		sceneRole.AddEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.PositionChange, PositionChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.RotationChange, RotationChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.LocalScaleChange, LocalScaleChangeHandler);
 	}
 	
 	protected virtual void Unlisten()
@@ -38,6 +41,9 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 		sceneRole.RemoveEventListener(SceneRoleEvent.CullingChange, CullingChangeHandler);
         sceneRole.RemoveEventListener(SceneRoleEvent.ActiveChange, ActiveChangeHandler);
 		sceneRole.RemoveEventListener(SceneRoleEvent.LayerChange, LayerChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.PositionChange, PositionChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.RotationChange, RotationChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.LocalScaleChange, LocalScaleChangeHandler);
 	}
 	
 	protected virtual void TriggerEntityChange()
@@ -51,12 +57,15 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
         ActiveChangeHandler(null);
 		LayerChangeHandler(null);
         NameChangeHandler(null);
+        PositionChangeHandler(null);
+        RotationChangeHandler(null);
+        LocalScaleChangeHandler(null);
 	}
 
 	protected virtual void AttachComponent()
 	{
 		behaviour = entity.AddComponent<T2>();
-		behaviour.Bind(sceneRole);
+		behaviour.Link(sceneRole);
 	}
 
 	protected virtual void DettachComponent()
@@ -131,6 +140,30 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
         if (entity != null)
         {
             entity.name = sceneRole.role.GetString(Role.name);
+        }
+    }
+
+    private void PositionChangeHandler(IEvent obj)
+    {
+        if (entity != null)
+        {
+            entity.transform.position = GameUtil.Position3DZ22DY(sceneRole.position);
+        }
+    }
+
+    private void RotationChangeHandler(IEvent obj)
+    {
+        if (entity != null)
+        {
+            entity.transform.rotation = Quaternion.Euler(sceneRole.rotation);
+        }
+    }
+
+    private void LocalScaleChangeHandler(IEvent obj)
+    {
+        if (entity != null)
+        {
+            entity.transform.localScale = sceneRole.localScale;
         }
     }
 

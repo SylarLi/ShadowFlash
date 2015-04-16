@@ -24,12 +24,6 @@ public interface ISceneRole : IEventDispatcher
 	/// </summary>
 	bool culling { get; set; }
 
-	/// <summary>
-	/// 是否渲染，对应renderer.enabled
-	/// </summary>
-	/// <value><c>true</c> if render; otherwise, <c>false</c>.</value>
-	bool render { get; set; }
-
 	int layer { get; set; }
 
 	Vector3 position { get; set; }
@@ -37,10 +31,6 @@ public interface ISceneRole : IEventDispatcher
 	Vector3 rotation { get; set; }
 
 	Vector3 localScale { get; set; }
-
-	bool animatorEnabled { get; set; }
-
-	float animatorSpeed { get; set; }
 
 	// ------------ 分界线 -------------- //
 

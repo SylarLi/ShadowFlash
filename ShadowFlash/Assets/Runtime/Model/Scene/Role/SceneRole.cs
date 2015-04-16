@@ -11,24 +11,17 @@ public class SceneRole : EventDispatcher, ISceneRole
 
 	private int _layer;
 
-	private bool _render;
-
 	private Vector3 _position; 
 
 	private Vector3 _rotation;
 
 	private Vector3 _localScale;
 
-	private bool _animatorEnabled;
-	
-	private float _animatorSpeed;
-
 	public SceneRole(IRole role)
 	{
         _role = role;
 		_active = false;
 		_culling = false;
-		_render = true;
 		_layer = GameLayer.Default;
 		_position = Vector3.zero;
 		_rotation = Vector3.zero;
@@ -89,22 +82,6 @@ public class SceneRole : EventDispatcher, ISceneRole
 			{
 				_culling = value;
 				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.CullingChange));
-			}
-		}
-	}
-
-	public bool render
-	{
-		get
-		{
-			return _render;
-		}
-		set
-		{
-			if (_render != value)
-			{
-				_render = value;
-				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.RenderChange));
 			}
 		}
 	}
@@ -173,38 +150,6 @@ public class SceneRole : EventDispatcher, ISceneRole
 			{
 				_localScale = value;
 				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.LocalScaleChange));
-			}
-		}
-	}
-
-	public bool animatorEnabled
-	{
-		get
-		{
-			return _animatorEnabled;
-		}
-		set
-		{
-			if (_animatorEnabled != value)
-			{
-				_animatorEnabled = value;
-				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.AnimatorEnabledChange));
-			}
-		}
-	}
-	
-	public float animatorSpeed
-	{
-		get
-		{
-			return _animatorSpeed;
-		}
-		set
-		{
-			if (!Mathf.Approximately(_animatorSpeed, value))
-			{
-				_animatorSpeed = value;
-				DispatchEvent(new SceneRoleEvent(SceneRoleEvent.AnimatorSpeedChange));
 			}
 		}
 	}

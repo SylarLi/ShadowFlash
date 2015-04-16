@@ -2,6 +2,32 @@ using UnityEngine;
 
 public class GameUtil
 {
+    public static Vector3 DirectionToVector3(Direction direction)
+    {
+        Vector3 vendor = Vector3.zero;
+        if ((direction &= Direction.Left) > 0)
+        {
+            vendor.x = -1;
+        }
+        else if ((direction &= Direction.Right) > 0)
+        {
+            vendor.x = 1;
+        }
+        if ((direction &= Direction.Bottom) > 0)
+        {
+            vendor.y = -1;
+        }
+        else if ((direction &= Direction.Top) > 0)
+        {
+            vendor.y = 1;
+        }
+        return vendor;
+    }
+
+    /// <summary>
+    /// 销毁
+    /// </summary>
+    /// <param name="o"></param>
 	public static void Destroy(Object o)
 	{
 		if (o != null)

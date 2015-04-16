@@ -16,10 +16,6 @@ public class SceneRoleEvent : Event
 
 	public const string LocalScaleChange = "LocalScaleChange";
 
-	public const string AnimatorEnabledChange = "AnimatorEnabledChange";
-	
-	public const string AnimatorSpeedChange = "AnimatorSpeedChange";
-
 	public SceneRoleEvent(string type, object data = null) : base(type, data)
 	{
 
