@@ -17,6 +17,10 @@ public class SceneRole : EventDispatcher, ISceneRole
 
 	private Vector3 _localScale;
 
+    private SceneRoleControllType _controllType;
+
+    private bool _air;
+
 	public SceneRole(IRole role)
 	{
         _role = role;
@@ -26,6 +30,8 @@ public class SceneRole : EventDispatcher, ISceneRole
 		_position = Vector3.zero;
 		_rotation = Vector3.zero;
 		_localScale = Vector3.one;
+        _controllType = SceneRoleControllType.Free;
+        _air = false;
 	}
 
 	#region ISceneRole implementation
@@ -153,6 +159,38 @@ public class SceneRole : EventDispatcher, ISceneRole
 			}
 		}
 	}
+
+    public SceneRoleControllType controllType
+    {
+        get
+        {
+            return _controllType;
+        }
+        set
+        {
+            if (_controllType != value)
+            {
+                _controllType = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.SceneRoleControllTypeChange));
+            }
+        }
+    }
+
+    public bool air
+    {
+        get
+        {
+            return _air;
+        }
+        set
+        {
+            if (_air != value)
+            {
+                _air = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.AirChange));
+            }
+        }
+    }
 
 	/// <summary>
 	/// view同步坐标

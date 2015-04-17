@@ -16,6 +16,10 @@ public class SceneRoleEvent : Event
 
 	public const string LocalScaleChange = "LocalScaleChange";
 
+    public const string SceneRoleControllTypeChange = "SceneRoleControllTypeChange";
+
+    public const string AirChange = "AirChange";
+
 	public SceneRoleEvent(string type, object data = null) : base(type, data)
 	{
 

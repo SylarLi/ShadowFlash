@@ -2,22 +2,51 @@ using UnityEngine;
 
 public class GameUtil
 {
+    public static Direction KeyCodeToDirection(KeyCode key)
+    {
+        Direction direction = Direction.None;
+        switch (key)
+        {
+            case KeyCode.W:
+                {
+                    direction = Direction.Top;
+                    break;
+                }
+            case KeyCode.S:
+                {
+                    direction = Direction.Bottom;
+                    break;
+                }
+            case KeyCode.A:
+                {
+                    direction = Direction.Left;
+                    break;
+                }
+            case KeyCode.D:
+                {
+                    direction = Direction.Right;
+                    break;
+                }
+        }
+        return direction;
+    }
+
     public static Vector3 DirectionToVector3(Direction direction)
     {
         Vector3 vendor = Vector3.zero;
-        if ((direction &= Direction.Left) > 0)
+        if ((direction & Direction.Left) > 0)
         {
             vendor.x = -1;
         }
-        else if ((direction &= Direction.Right) > 0)
+        else if ((direction & Direction.Right) > 0)
         {
             vendor.x = 1;
         }
-        if ((direction &= Direction.Bottom) > 0)
+        if ((direction & Direction.Bottom) > 0)
         {
             vendor.y = -1;
         }
-        else if ((direction &= Direction.Top) > 0)
+        else if ((direction & Direction.Top) > 0)
         {
             vendor.y = 1;
         }

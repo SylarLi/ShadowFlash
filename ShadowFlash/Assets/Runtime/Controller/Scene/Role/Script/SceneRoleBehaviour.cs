@@ -4,18 +4,36 @@ using UnityEngine;
 
 public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 {
-	protected ISceneRole sceneRole;
+	protected T sceneRole;
 	
-    protected SceneRolePhysics physicsProxy;
+    protected PhysicsProxy physicsProxy;
 
-    public void Link(T sceneRole)
+    public virtual void Listen(T value)
 	{
-        this.sceneRole = sceneRole;
+        sceneRole = value;
+        sceneRole.AddEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.AirChange, AirChangeHandler);
 	}
+
+    protected virtual void UnListen()
+    {
+        sceneRole.RemoveEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.AirChange, AirChangeHandler);
+    }
+
+    private void ControllTypeChangeHandler(IEvent e)
+    {
+        
+    }
+
+    private void AirChangeHandler(IEvent e)
+    {
+
+    }
 
     protected virtual void Awake()
     {
-        physicsProxy = new SceneRolePhysics(GetComponent<Rigidbody2D>());
+        physicsProxy = new PhysicsProxy(GetComponent<Rigidbody2D>());
         physicsProxy.Awake();
     }
 
@@ -36,6 +54,7 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
         sceneRole.SyncPosition(physicsProxy.Get3DPosition());
 		sceneRole.SyncRotation(transform.rotation.eulerAngles);
 		sceneRole.SyncLocalScale(transform.localScale);
+        sceneRole.air = !Mathf.Approximately(sceneRole.position.z, GameConst.FloorHeight);
 	}
 
     protected virtual void FixedUpdate()
@@ -45,8 +64,9 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 
     protected virtual void OnDestroy()
     {
+        UnListen();
         physicsProxy.OnDestroy();
         physicsProxy = null;
-        sceneRole = null;
+        sceneRole = default(T);
     }
 }

@@ -65,7 +65,7 @@ public class SceneRoleView<T1, T2> : ISceneRoleView where T1 : class, ISceneRole
 	protected virtual void AttachComponent()
 	{
 		behaviour = entity.AddComponent<T2>();
-		behaviour.Link(sceneRole);
+		behaviour.Listen(sceneRole);
 	}
 
 	protected virtual void DettachComponent()

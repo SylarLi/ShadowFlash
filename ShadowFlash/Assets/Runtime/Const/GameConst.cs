@@ -19,4 +19,14 @@ public class GameConst
     /// 在地面时的刚体linearDrag
     /// </summary>
     public const float FloorLinearDrag = 5f;
+
+    /// <summary>
+    /// 在地面主动移动时的受力
+    /// </summary>
+    public const float FloorRunForce = 5f;
+
+    /// <summary>
+    /// 起跳时的向上速度
+    /// </summary>
+    public const float JumpSpeed = 3f;
 }

@@ -32,6 +32,14 @@ public interface ISceneRole : IEventDispatcher
 
 	Vector3 localScale { get; set; }
 
+    /// <summary>
+    /// true: 空中
+    /// false: 地面
+    /// </summary>
+    bool air { get; set; }
+
+    SceneRoleControllType controllType { get; set; }
+
 	// ------------ 分界线 -------------- //
 
 	void SyncPosition(Vector3 value);

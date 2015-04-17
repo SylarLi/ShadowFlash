@@ -36,6 +36,7 @@ public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRol
                 if (listener == null)
                 {
                     listener = entity.AddComponent<KeyBoardListener>();
+                    behaviour.ListenKeyboard(listener);
                 }
             }
             else
