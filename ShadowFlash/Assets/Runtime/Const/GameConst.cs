@@ -6,9 +6,9 @@ public class GameConst
 	public const float CameraAngle = 45;
 
 	/// <summary>
-	/// 重力常数
+	/// 重力常数大小
 	/// </summary>
-	public const float Gravity = -9.8f;
+	public const float Gravity = 9.8f;
 
     /// <summary>
     /// 地面一致高度
@@ -18,12 +18,12 @@ public class GameConst
     /// <summary>
     /// 在地面时的刚体linearDrag
     /// </summary>
-    public const float FloorLinearDrag = 5f;
+    public const float FloorLinearDrag = 10;
 
     /// <summary>
-    /// 在地面主动移动时的受力
+    /// 临时角色一致移动速度
     /// </summary>
-    public const float FloorRunForce = 5f;
+    public const float MoveSpeed = 2f;
 
     /// <summary>
     /// 起跳时的向上速度

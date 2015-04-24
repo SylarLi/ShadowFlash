@@ -17,9 +17,15 @@ public class SceneRole : EventDispatcher, ISceneRole
 
 	private Vector3 _localScale;
 
+    private bool _air;
+
+    private bool _useGravity;
+
+    private bool _useFloorDrag;
+
     private SceneRoleControllType _controllType;
 
-    private bool _air;
+    private SceneRoleState _state;
 
 	public SceneRole(IRole role)
 	{
@@ -30,8 +36,11 @@ public class SceneRole : EventDispatcher, ISceneRole
 		_position = Vector3.zero;
 		_rotation = Vector3.zero;
 		_localScale = Vector3.one;
-        _controllType = SceneRoleControllType.Free;
         _air = false;
+        _useGravity = true;
+        _useFloorDrag = true;
+        _controllType = SceneRoleControllType.Free;
+        _state = SceneRoleState.Idle;
 	}
 
 	#region ISceneRole implementation
@@ -160,6 +169,54 @@ public class SceneRole : EventDispatcher, ISceneRole
 		}
 	}
 
+    public bool air
+    {
+        get
+        {
+            return _air;
+        }
+        set
+        {
+            if (_air != value)
+            {
+                _air = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.AirChange));
+            }
+        }
+    }
+
+    public bool useGravity
+    {
+        get
+        {
+            return _useGravity;
+        }
+        set
+        {
+            if (_useGravity != value)
+            {
+                _useGravity = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.UseGravityChange));
+            }
+        }
+    }
+
+    public bool useFloorDrag
+    {
+        get
+        {
+            return _useFloorDrag;
+        }
+        set
+        {
+            if (_useFloorDrag != value)
+            {
+                _useFloorDrag = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.UseFloorDragChange));
+            }
+        }
+    }
+
     public SceneRoleControllType controllType
     {
         get
@@ -176,18 +233,18 @@ public class SceneRole : EventDispatcher, ISceneRole
         }
     }
 
-    public bool air
+    public SceneRoleState state
     {
         get
         {
-            return _air;
+            return _state;
         }
         set
         {
-            if (_air != value)
+            if (_state != value)
             {
-                _air = value;
-                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.AirChange));
+                _state = value;
+                DispatchEvent(new SceneRoleEvent(SceneRoleEvent.SceneRoleStateChange));
             }
         }
     }

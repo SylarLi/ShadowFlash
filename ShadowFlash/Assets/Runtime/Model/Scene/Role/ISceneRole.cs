@@ -38,7 +38,19 @@ public interface ISceneRole : IEventDispatcher
     /// </summary>
     bool air { get; set; }
 
+    /// <summary>
+    /// 在空中时是否开启重力
+    /// </summary>
+    bool useGravity { get; set; }
+
+    /// <summary>
+    /// 在地面时是否开启地面水平阻力
+    /// </summary>
+    bool useFloorDrag { get; set; }
+
     SceneRoleControllType controllType { get; set; }
+
+    SceneRoleState state { get; set; }
 
 	// ------------ 分界线 -------------- //
 

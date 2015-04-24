@@ -48,4 +48,13 @@ public class PlayerSceneRoleView : SceneRoleView<PlayerSceneRole, PlayerSceneRol
             }
 		}
 	}
+
+    protected override void DettachComponent()
+    {
+        base.DettachComponent();
+        if (entity != null)
+        {
+            GameUtil.Destroy(entity.GetComponent<KeyBoardListener>());
+        }
+    }
 }

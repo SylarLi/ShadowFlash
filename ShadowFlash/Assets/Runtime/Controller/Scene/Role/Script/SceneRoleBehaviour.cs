@@ -8,17 +8,40 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 	
     protected PhysicsProxy physicsProxy;
 
+    protected int gravity;
+
     public virtual void Listen(T value)
 	{
         sceneRole = value;
-        sceneRole.AddEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
         sceneRole.AddEventListener(SceneRoleEvent.AirChange, AirChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.UseGravityChange, UseGravityChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.UseFloorDragChange, UseFloorDragChangeHandler);
+        sceneRole.AddEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
 	}
 
     protected virtual void UnListen()
     {
-        sceneRole.RemoveEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
         sceneRole.RemoveEventListener(SceneRoleEvent.AirChange, AirChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.UseGravityChange, UseGravityChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.UseFloorDragChange, UseFloorDragChangeHandler);
+        sceneRole.RemoveEventListener(SceneRoleEvent.SceneRoleControllTypeChange, ControllTypeChangeHandler);
+    }
+
+    private void UseGravityChangeHandler(IEvent e)
+    {
+        UpdateGravity();
+    }
+
+    private void UseFloorDragChangeHandler(IEvent e)
+    {
+        UpdateFloorDrag();
+    }
+
+    private void AirChangeHandler(IEvent e)
+    {
+        UpdateGravity();
+        UpdateFloorDrag();
+        UpdateAir();
     }
 
     private void ControllTypeChangeHandler(IEvent e)
@@ -26,9 +49,41 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
         
     }
 
-    private void AirChangeHandler(IEvent e)
+    protected virtual void UpdateGravity()
     {
+        if (sceneRole.air && sceneRole.useGravity)
+        {
+            if (gravity == 0)
+            {
+                gravity = physicsProxy.NatureFoward(new Vector3(0, 0, -1), GetComponent<Rigidbody2D>().mass * GameConst.Gravity);
+            }
+        }
+        else
+        {
+            if (gravity > 0)
+            {
+                physicsProxy.RemoveNature(gravity);
+                gravity = 0;
+            }
+        }
+    }
 
+    protected virtual void UpdateFloorDrag()
+    {
+        physicsProxy.SetHorizontalDragEnable(sceneRole.useFloorDrag && !sceneRole.air);
+    }
+
+    protected virtual void UpdateAir()
+    {
+        if (!sceneRole.air)
+        {
+            if (sceneRole.controllType == SceneRoleControllType.Free)
+            {
+                physicsProxy.SetHorizontalVelocity(Vector2.zero);
+            }
+            physicsProxy.SetVerticalVelocity(0);
+            physicsProxy.SetVerticalPosition(GameConst.FloorHeight);
+        }
     }
 
     protected virtual void Awake()
@@ -51,10 +106,10 @@ public class SceneRoleBehaviour<T> : MonoBehaviour where T : ISceneRole
 	{
         physicsProxy.Update();
         transform.position = physicsProxy.Get2DPosition();
-        sceneRole.SyncPosition(physicsProxy.Get3DPosition());
-		sceneRole.SyncRotation(transform.rotation.eulerAngles);
-		sceneRole.SyncLocalScale(transform.localScale);
-        sceneRole.air = !Mathf.Approximately(sceneRole.position.z, GameConst.FloorHeight);
+        Vector3 position3D = physicsProxy.Get3DPosition();
+        Vector3 nextPosition3D = physicsProxy.GetNext3DPosition();
+        sceneRole.air = position3D.z >= GameConst.FloorHeight && nextPosition3D.z > 0;
+        sceneRole.SyncPosition(position3D);
 	}
 
     protected virtual void FixedUpdate()
