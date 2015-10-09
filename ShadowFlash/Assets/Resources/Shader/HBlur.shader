@@ -1,4 +1,4 @@
-﻿Shader "Sylar/GaussianBlur" 
+﻿Shader "Sylar/HBlur"
 {
 	Properties 
 	{
@@ -10,6 +10,8 @@
 	{
 		Pass
 		{
+			// Horizontal
+
 			CGPROGRAM
 
  			#pragma vertex vert
@@ -31,8 +33,7 @@
 	 		{
 	 			float4 pos : POSITION;
 	 			float2 uv : TEXCOORD0;
-	 			float2 offset1 : TEXCOORD1;
-	 			float2 offset2 : TEXCOORD2;
+	 			float2 offset : TEXCOORD1;
 	 		};
 
 	 		static const float offsets[3] = { 0, 1.3846153846, 3.2307692308 };
@@ -43,8 +44,7 @@
 	 			v2f o;
 	 			o.pos = mul(UNITY_MATRIX_MVP, i.vertex);
 	 			o.uv = TRANSFORM_TEX(i.texcoord, _MainTex);
-	 			o.offset1 = (offsets[1] * _BlurSize * _MainTex_TexelSize.x, offsets[1] * _BlurSize * _MainTex_TexelSize.y);
-	 			o.offset2 = (offsets[2] * _BlurSize * _MainTex_TexelSize.x, offsets[2] * _BlurSize * _MainTex_TexelSize.y);
+	 			o.offset = (offsets[1] * _BlurSize * _MainTex_TexelSize.x, offsets[2] * _BlurSize * _MainTex_TexelSize.x);
 	 			return o;
 	 		}
 
@@ -55,17 +55,13 @@
 	 			half4 sum = TexOffset(0, 0) * weights[0];
 
 	 			half4 sum1 = (0, 0, 0, 0);
-	 			sum1 += TexOffset(i.offset1.x, 0);
-				sum1 += TexOffset(-i.offset1.x, 0);
-				sum1 += TexOffset(0, i.offset1.y);
-				sum1 += TexOffset(0, -i.offset1.y);
+	 			sum1 += TexOffset(i.offset.x, 0);
+				sum1 += TexOffset(-i.offset.x, 0);
 				sum1 *= weights[1];
 
 				half4 sum2 = (0, 0, 0, 0);
-				sum2 += TexOffset(i.offset2.x, 0);
-				sum2 += TexOffset(-i.offset2.x, 0);
-				sum2 += TexOffset(0, i.offset2.y);
-				sum2 += TexOffset(0, -i.offset2.y);
+				sum2 += TexOffset(i.offset.y, 0);
+				sum2 += TexOffset(-i.offset.y, 0);
 				sum2 *= weights[2]; 
 
 	 			return sum + sum1 + sum2;
